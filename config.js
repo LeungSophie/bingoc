@@ -3,7 +3,7 @@
 // Please verify apiKey and appId against Firebase → Project settings → Your apps.
 window.BINGOC_CONFIG = {
   firebase: {
-    apiKey: 'AIzaSyB-xos2xG_3dH9Cm-b40jIQwIaTIiry94E',
+    apiKey: 'AIzaSyB-xos2xG_3dH9Cm-b4OjIQwIalT1ry94E',
     authDomain: 'bingoc-d7084.firebaseapp.com',
     databaseURL: 'https://bingoc-d7084-default-rtdb.asia-southeast1.firebasedatabase.app',
     projectId: 'bingoc-d7084',
