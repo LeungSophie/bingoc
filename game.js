@@ -1,6 +1,7 @@
 
 (()=>{'use strict';
-const ATTACK_GIF='assets/final_attack.gif';
+const ATTACK_GIF='assets/final_attack.gif?v=2_3a';
+const FINAL_ATTACK_DURATION_MS=6380;
 const ENDING_GIF='assets/happy_ending.gif';
 const ROOM=(new URLSearchParams(location.search).get('room')||'AACC').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,32)||'AACC';
 const KEY='bingoc_demo_room_'+ROOM;
@@ -75,7 +76,7 @@ function normaliseRemote(d){
  return {...defaults(),...host,players,entries,event:d.event||null};
 }
 async function setup(){
- document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.2':'本地示範模式（未填 Firebase 設定）';
+ document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.3A':'本地示範模式（未填 Firebase 設定）';
  if(!LIVE){serverStateReady=true;render();return;}
  try{
   fb=firebase.initializeApp(window.BINGOC_CONFIG.firebase,'bingoc-'+view);
@@ -225,7 +226,7 @@ function host(){
  <div class="divider"></div><h3>⚡ Friendship Boost</h3><p class="sub">只增加合作 Common Power，並在 TV 顯示 FRIENDSHIP BOOST +10！不影響任何個人排名。</p>
  <div class="row">${[5,10,15].map(n=>b('⚡ +'+n+' POWER','boost'+n,'orange',!['playing','paused'].includes(state.phase))).join('')}</div>
  <p class="sub">玩家紀錄 ${gm.records} · 首次 Bingo 力量 ${gm.bingoPeople*3} · 主持 Boost +${state.boost}</p>
- <p class="sub">${state.finalAttack?'✅ Final Attack 已播放。現在可繼續頒獎；待五個獎項完成後，可自由切換「完整排行榜」與「Happy Ending（救出王子）」畫面。':'按 Freeze Results 後，TV 會先播放 Final Attack（打敗陌生怪，未出現王子），完成後自動進入 Awards。'}</p>
+ <p class="sub">${state.finalAttack?'✅ 打敗陌生怪及拉旗後進入頒獎。五個獎項完成後可隨時切換排行榜／Happy Ending（救出王子）。':'按 Freeze Results 後，TV 播放怪物放大、爆炸、Fi & Mag 拉旗的 Final Attack（無王子），之後自動進入 Awards。'}</p>
  <div class="divider"></div><h3>Players & Scores</h3><div class="pills" style="margin:10px 0">${state.players.map(p=>`<span class="pill">${esc(p.name)} · ${personMetrics(p.id).score}分</span>`).join('')||'<small>尚未有人加入</small>'}</div>
  <div class="row">${b('載入12名示範玩家','seed','outline',LIVE||state.phase!=='lobby')}${b('全部清除（重設）','reset','red')}</div></div>`;
  str+=`<div class="panel"><h2>🏆 AWARDS — 五獎依次揭曉</h2><p class="sub">榜上是真實排名（同分會並列）；亮框只標出未得過獎的最高順位受訪者。</p>
@@ -241,7 +242,7 @@ function host(){
   }
  }
  if(state.phase==='summary'){
-  str+=`<div class="hint">全部五個獎項已結束。主持可自由切換 TV 顯示：完整排行榜／個別獎項排行榜／Happy Ending（王子登場）。</div><div class="row" style="margin:12px 0">${b('🏅 五獎總排行榜','boardAll','orange')}${awardDefs.map(a=>b(a.name,'board_'+a.key,'soft')).join('')}${b('👑 HAPPY ENDING','showEnding','green',!state.finalAttack)}</div><div class="row">${b('◀ 上一頁','pagePrev','soft',state.summaryPage<=0||state.tvOverride==='ending')}${b('下一頁 ▶','pageNext','soft',state.tvOverride==='ending')}</div>`;
+  str+=`<div class="hint">五個獎項已頒完，主持可以隨時交替切換兩個 TV 畫面，不會重播 Final Attack。${state.tvOverride==='ending'?'目前 TV：👑 Happy Ending（王子得救）':'目前 TV：📊 排行榜'}</div><div class="row" style="margin:12px 0">${b('📊 FULL LEADERBOARD → TV','boardAll','orange')}${b('👑 HAPPY ENDING → TV','showEnding','green',!state.finalAttack)}</div><div class="row">${awardDefs.map(a=>b(a.name,'board_'+a.key,'soft')).join('')}</div><div class="row" style="margin-top:12px">${b('◀ 上一頁','pagePrev','soft',state.summaryPage<=0||state.tvOverride==='ending')}${b('下一頁 ▶','pageNext','soft',state.tvOverride==='ending')}</div>`;
  }
  str+='</div>';return str;
 }
@@ -288,11 +289,12 @@ function tv(){
  const firingFi=actorHash%2===0;
  const projectileSvg='<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="crispEdges"><path fill="#3a241d" d="M12 2h8v3h5v4h4v11h-5v3H8v-3H3V9h4V5h5z"/><path fill="#ef4c3f" d="M12 5h8v3h5v4h2v6H5v-6h2V8h5z"/><path fill="#fff8cd" d="M11 9h5v6h-5zM21 12h4v6h-4z"/><path fill="#fff1d3" d="M10 19h12v8H10z"/><path fill="#332c26" d="M13 21h2v4h-2zM18 21h2v4h-2z"/></svg>';
  let s=`<div class="tv"><div class="row space tvHeader"><div class="pixel" style="color:#ffe477">SUPER AACC SIS. ★ BINGOC</div><b class="pixel">${state.players.length} PLAYERS</b></div>`;
- if(state.tvOverride==='attack'&&state.finalAttack&&Date.now()-(state.finalAttackAt||0)<3400){
-  const elapsed=Date.now()-(state.finalAttackAt||0),ATTACK_MS=3150;
-  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK!</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="Fi and Mag defeat the Awkwardness Monster at the castle" /><h2 class="pixel" style="color:#ffdc73">AWKWARDNESS MONSTER DEFEATED!</h2><p class="victorySub">Fi & Mag high-jump at the castle — 王子尚未出場，先進入頒獎！</p><p class="tvPage">動畫播放完成後，將自動進入 Awards。</p></div>`;
-  if(elapsed<ATTACK_MS)setTimeout(()=>{if(view==='tv'&&state.tvOverride==='attack')render()},Math.max(120,ATTACK_MS-elapsed));
-  else setTimeout(()=>{if(state.tvOverride==='attack'){state.tvOverride='auto';render();}},120);
+ if(state.tvOverride==='attack'&&state.finalAttack&&Date.now()-(state.finalAttackAt||0)<FINAL_ATTACK_DURATION_MS){
+  const elapsed=Date.now()-(state.finalAttackAt||0);
+  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK! — AWKWARDNESS MONSTER</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="The monster grows to fill the screen and explodes; Fi and Mag leap and pull down the castle flag. The prince does not appear." /><h2 class="pixel" style="color:#ffdc73">MONSTER DEFEATED! · FLAG DOWN!</h2><p class="victorySub">Fi & Mag 成功擊敗陌生怪，合力拉下城堡旗幟！</p><p class="tvPage">Final Attack 結束後將自動進入頒獎。王子只在 Happy Ending 出現。</p></div>`;
+  // Display is derived from the freeze timestamp. Never write a TV-only override
+  // back to Firebase: this keeps awards available on refresh and on other TVs.
+  setTimeout(()=>{if(view==='tv'&&state.tvOverride==='attack')render()}, Math.max(120,FINAL_ATTACK_DURATION_MS-elapsed+120));
  }else if(state.tvOverride==='ending'&&state.finalAttack){
   s+=`<div class="victoryScreen"><h2 class="pixel">HAPPY ENDING!</h2><img class="pixelGif" src="${ENDING_GIF}" alt="The prince is rescued in the happy ending" /><h2 class="pixel" style="color:#ffdc73">THE PRINCE IS SAVED! 🎉</h2><p class="victorySub">最終結局：兩姊妹成功拯救王子，慶祝大團圓！</p><p class="tvPage">主持可隨時切換回完整排行榜。</p></div>`;
  }else if(lobby){
@@ -308,7 +310,7 @@ function tv(){
  else{
   s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky ${attacking?'attackAction':''} ${bingoAttack?'powerBingo':''}"><span class="fi ${attacking&&firingFi?'heroAttack':''}">👧🏻</span><span class="mag ${attacking&&!firingFi?'heroAttack':''}">👩🏽</span><span class="boss ${attacking?'bossHit':''}">👾</span><div class="tvground"></div>${attacking?`<span class="attackShot ${firingFi?'fromFi':'fromMag'}" aria-hidden="true">${projectileSvg}</span><span class="impactBurst" aria-hidden="true">✹</span>`:''}${has&&fx.type!=='edit'?`<div class="tvbanner pixel">${esc(fx.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
  }
- s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.2 · 原創像素 GIF。</p>';return s;
+ s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.3A · Final Attack / Awards / Happy Ending。</p>';return s;
 }
 
 let tvBannerTimer=null;
