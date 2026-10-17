@@ -1,0 +1,107 @@
+
+:root{--ink:#182849;--bg:#eff3fb;--muted:#6b7996;--navy:#172451;--blue:#354ca8;--yellow:#ffe475;--orange:#ffa24e;--empty:#e2e6ed;--card:#fff;--red:#f26b73;--green:#4aab9a}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans CJK TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}
+.wrap{max-width:1100px;margin:auto;padding:18px}header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h1{margin:0;font-size:1.34rem;letter-spacing:.03em}h2{margin:0;font-size:1.1rem}h3{margin:0;font-size:1rem}p{margin:.35em 0;line-height:1.55}small,.sub{color:var(--muted)}.sub{font-size:.82rem}.brand{font-weight:900;letter-spacing:1px}.brand em{font-style:normal;color:#d78c0c}
+nav{display:flex;gap:7px;background:#e4eaf5;padding:5px;border-radius:14px}nav button{padding:9px 12px;border:0;border-radius:10px;background:transparent;color:#3a5077;font-weight:750}nav button.active{background:var(--navy);color:white}
+main{margin-top:17px}.panel{background:white;border-radius:17px;border:1px solid #dce3f0;padding:20px;box-shadow:0 5px 20px #1b326315;margin-bottom:14px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.space{justify-content:space-between}.btn{background:var(--navy);border:0;border-radius:10px;color:white;font-weight:750;padding:10px 15px}.btn.soft{background:#e8edf8;color:var(--ink)}.btn.orange{background:#ef9933;color:#201710}.btn.red{background:#fbe6e7;color:#a32c37}.btn.green{background:#177866}.btn.tiny{padding:6px 10px;font-size:.83rem}.btn.outline{border:1px solid #abb9d0;background:white;color:var(--ink)}.input{width:100%;max-width:100%;border:1px solid #aebcd3;border-radius:9px;padding:11px;background:white;color:#182849;caret-color:#182849;outline-color:#809ee6}.input:focus{border-color:#2f5ac7}.label{font-size:.88rem;font-weight:750;display:block;margin:8px 0 5px}.pills{display:flex;flex-wrap:wrap;gap:7px}.pill{background:#eaf0fb;border-radius:50px;padding:5px 10px;font-size:.84rem}.meta{background:#f0f4fc;border-radius:12px;padding:12px 15px}.metric{font-size:1.55rem;font-weight:900;letter-spacing:-1px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stats>div{background:#f0f4fc;padding:12px;border-radius:12px;text-align:center}.hint{background:#fff8db;border:1px solid #f2df99;border-radius:10px;padding:10px;font-size:.88rem;line-height:1.5}
+.gridHolder{position:relative}.bingo{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;position:relative;z-index:1}.cell{min-height:108px;border:2px solid #d1d8e1;border-radius:11px;padding:9px 4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;background:var(--empty);color:var(--ink);text-align:center;transition:background .2s}.cell.l1{background:var(--yellow);border-color:#dfc14a}.cell.l2{background:var(--orange);border-color:#e28224}.cell:hover{filter:brightness(.98)}.cellTitle{font-size:.81rem;font-weight:800;line-height:1.24;min-height:31px;display:flex;align-items:center}.cellNames{font-size:.77rem;font-weight:650;line-height:1.35;overflow-wrap:anywhere}.cellEmpty{color:#8490a4;font-size:1.4rem;line-height:1}.lines{pointer-events:none;position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:visible}.lines line{stroke-linecap:round}.progress{height:18px;background:#c9d4ed;border-radius:99px;overflow:hidden}.progress>div{background:linear-gradient(90deg,#f0bc3f,#ff9254);height:100%;transition:width .3s}.error{color:#bc3042;font-weight:650;font-size:.87rem}.good{color:#087e59;font-weight:750}.choices{max-height:190px;overflow:auto;border:1px solid #d7e0ee;border-radius:10px;margin-top:7px}.choices button{width:100%;text-align:left;background:white;border:0;border-bottom:1px solid #eef1f6;padding:9px 10px}.choices button:hover{background:#f4f7fd}.tag{background:#e5edfc;display:inline-flex;gap:9px;align-items:center;padding:5px 9px;border-radius:10px}.tag button{border:0;background:none;font-weight:900;color:#8c213d}.divider{height:1px;background:#e2e8f2;margin:16px 0}
+.tv{background:#162854;color:white;min-height:565px;border:8px solid #0f1a37;border-radius:20px;padding:20px;position:relative;overflow:hidden}.pixel{font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase;font-weight:900;letter-spacing:1px;text-shadow:2px 2px #111e42}.tvsky{background:linear-gradient(#26488e 10%,#478cc4 75%,#b7d5ce 75%);height:265px;border-radius:12px;position:relative;overflow:hidden;border-bottom:14px repeating-linear-gradient(90deg,#a17b44 0 24px,#71582c 24px 40px)}.tvground{position:absolute;bottom:0;left:0;right:0;height:46px;background:repeating-linear-gradient(90deg,#8f6945 0 32px,#a77746 32px 64px);border-top:11px solid #438f55}.fi,.mag,.boss{position:absolute;bottom:44px;font-size:3.6rem;filter:drop-shadow(4px 5px 0 #1a2b58)}.fi{left:14%}.mag{left:35%}.boss{right:15%;font-size:5rem}.jump{animation:jump .7s ease-in-out 2}@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-50px)}}.tvbanner{position:absolute;top:50px;left:5%;right:5%;padding:13px;background:#1c255bec;border:3px solid #ffdc6e;text-align:center;border-radius:8px;font-size:1.2rem;z-index:3;animation:pop .3s}@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}.tvnames{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}.tvname{background:#304986;border:2px solid #678fc4;padding:7px 11px;border-radius:5px;font-size:.83rem}.qrbox{background:#fff;color:#15284f;border-radius:9px;display:inline-block;padding:17px;text-align:center;margin:12px auto;font-weight:900}.top3{display:grid;gap:8px}.ranking{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;border:1px solid #dbe3f0;border-radius:12px;background:#f1f4fa}.ranking.highlight{background:#fff2c5;border:2px solid #dfaa3e}.ranking.won{opacity:.72}.ranknum{font-weight:900;font-size:1.2rem;min-width:35px}.awardcard{background:#f4f6fa;padding:12px 14px;border-radius:12px;margin-bottom:9px}.awardcard.selected{outline:2px solid #eab241}.hostAwards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.muted{opacity:.65}.floating{position:fixed;inset:0;background:#13213eab;z-index:10;display:flex;justify-content:center;align-items:center;padding:16px}.modal{max-width:470px;width:100%;background:white;border-radius:18px;padding:21px;max-height:90vh;overflow:auto}.footer{margin-top:16px;font-size:.8rem;color:#6a7894;text-align:center}
+@media(max-width:760px){.wrap{padding:10px}.cols{grid-template-columns:1fr}.panel{padding:14px}.hostAwards{grid-template-columns:1fr}.tv{min-height:515px;padding:10px;border-width:5px}.cell{min-height:105px}.stats{gap:5px}.stats>div{padding:8px}.metric{font-size:1.25rem}header{align-items:start}nav button{padding:8px 9px;font-size:.81rem}}
+
+/* v0.2: High-contrast dark Phone view; keep the Bingo square colors legible. */
+body.mode-phone{background:#080b12;color:#edf4ff;color-scheme:dark}
+body.mode-phone header{color:#f5f7ff}
+body.mode-phone .brand em{color:#ffcf5a}
+body.mode-phone .sub,body.mode-phone small,body.mode-phone .footer{color:#b7c8e5}
+body.mode-phone nav{background:#182235}
+body.mode-phone nav button{color:#d0def4}
+body.mode-phone nav button.active{background:#f6bb47;color:#182035}
+.view-phone .panel{background:#141b29;color:#f7f9ff;border-color:#32415a;box-shadow:0 8px 30px #0008}
+.view-phone .panel h2,.view-phone .panel h3,.view-phone .panel b{color:inherit}
+.view-phone .meta,.view-phone .stats>div{background:#242f45;color:#f5f7ff}
+.view-phone .hint{background:#433717;border:1px solid #8a712a;color:#ffefa7}
+.view-phone .label{font-size:1.02rem;color:#f7f9ff}
+.view-phone .input,body.mode-phone .modal .input{background:#0d1525 !important;color:#ffffff !important;caret-color:#ffdf73 !important;border:2px solid #829bc7 !important;font-size:1.06rem;min-height:49px;box-shadow:none;-webkit-text-fill-color:#ffffff;}
+.view-phone .input::placeholder,body.mode-phone .modal .input::placeholder{color:#aebfdb !important;-webkit-text-fill-color:#aebfdb !important;opacity:1}
+.view-phone .input:focus,body.mode-phone .modal .input:focus{outline:3px solid #f3c451;outline-offset:1px;border-color:#f3c451 !important}
+.view-phone select.input option,body.mode-phone .modal select option{color:#fff;background:#101b2e}
+.view-phone .btn.outline{background:#293751;color:#f5f7ff;border-color:#92a7cb}
+.view-phone .stats small{color:#bdcbe4}
+.view-phone .cell{color:#172034 !important;min-height:112px}
+.view-phone .cellTitle{font-size:.9rem;line-height:1.24}
+.view-phone .cellNames{font-size:.86rem}
+.view-phone .cellEmpty{color:#4b617a}
+.view-phone .pills .pill{background:#293951;color:#f8fbff}
+.view-phone .error,body.mode-phone .modal .error{color:#ff8796}
+.view-phone .good{color:#8ef5c8}
+.view-phone .progress{background:#364660}
+/* Name-entry pop-up is dark too. White suggestions with white letters was the original problem. */
+body.mode-phone .floating{background:#01040ce5}
+body.mode-phone .modal{background:#151d2e;border:2px solid #53698a;color:#f6f9ff;box-shadow:0 20px 65px #000c}
+body.mode-phone .modal h2,body.mode-phone .modal .label{color:#fff}
+body.mode-phone .modal .sub,body.mode-phone .modal small{color:#c5d2e8}
+body.mode-phone .modal .btn.outline{background:#273752;color:#fff;border-color:#93a7c8}
+body.mode-phone .modal .tag{background:#344761;color:#ffffff;font-size:1rem}
+body.mode-phone .modal .tag button{color:#ffd6da;font-size:1.3rem}
+body.mode-phone .modal .choices{background:#101827;border:2px solid #7389b0;max-height:250px}
+body.mode-phone .modal .choices button{background:#1c2b42;color:#fff;border-bottom:1px solid #476180;font-size:1.07rem;font-weight:650;min-height:49px;padding:12px 14px}
+body.mode-phone .modal .choices button:hover,body.mode-phone .modal .choices button:focus{background:#364e70;color:#fff;outline:2px solid #f7c35e;outline-offset:-2px}
+body.mode-phone .modal .choices .sub{color:#c3d0e5}
+body.mode-phone .modal .hint{background:#433717;border-color:#92782f;color:#fff1ad}
+/* Larger projection sizes on host and TV, independently of phone UI. */
+.view-host .panel h2{font-size:1.55rem}
+.view-host .panel h3{font-size:1.2rem}
+.view-host .panel p,.view-host .panel .sub{font-size:1rem}
+.view-host .metric{font-size:2.05rem;letter-spacing:-.04em}
+.view-host .stats small{font-size:.93rem}
+.view-host .pill{font-size:1rem;padding:8px 12px}
+.view-host .btn{font-size:1.03rem;padding:12px 16px}
+.view-host .awardcard{font-size:1.08rem;padding:16px}
+.view-host .ranking{font-size:1.09rem}
+.view-tv .tv{font-size:1.17rem;min-height:620px}
+.view-tv .tv .pixel{font-size:1.34rem}
+.view-tv .tv .tvname{font-size:1.12rem;padding:10px 14px}
+.view-tv .tv .tvnames{gap:12px}
+.view-tv .tv .tvbanner{font-size:1.55rem}
+.view-tv .tv .qrbox{font-size:1.25rem}
+.view-tv .tv .top3{max-width:670px !important}
+.view-tv .tv .top3>div{font-size:1.28rem;padding:18px !important}
+@media(max-width:760px){.view-host .metric{font-size:1.55rem}.view-host .panel h2{font-size:1.33rem}.view-host .stats small{font-size:.76rem}.view-phone .cell{min-height:105px}.view-tv .tv{font-size:1.02rem;min-height:535px}.view-tv .tv .pixel{font-size:1.05rem}.view-tv .tv .tvname{font-size:.98rem}}
+
+
+/* v0.3: one blue Bingo line, purple double line, original boss-ending GIF and interview screens */
+.view-phone .lines line{filter:drop-shadow(0 0 1.2px #ffffffd8)}
+.tvHeader{position:relative;z-index:2}
+.victoryScreen{text-align:center;display:grid;justify-items:center;gap:14px;margin-top:21px}
+.victoryScreen h2{font-size:clamp(1.2rem,2vw,2.2rem);color:#ffe477}
+.pixelGif{width:min(100%,1000px);max-height:66vh;object-fit:contain;border:6px solid #f5c448;border-radius:8px;image-rendering:pixelated;box-shadow:0 14px 0 #0a1538}
+.tvAwardHeading{text-align:center;padding:20px 10px 3px}.tvAwardHeading h2{font-size:2.35rem;margin:12px 0}.tvAwardHeading p{color:#c5d7f7}
+.tvAwardList{max-width:790px;margin:15px auto}.tvAwardRow{background:#30447e;padding:17px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;border:3px solid #546ba0;border-radius:8px;font-size:1.36rem;flex-wrap:wrap}
+.tvAwardRow small{font-size:.78rem;color:#c6cedf}.tvAwardRow.tvWinner{background:#f9d05e;color:#152342;border:4px solid #fff2c3}
+.tvInterview{padding:10px 8px}.tvInterview>h2{text-align:center;font-size:1.4rem;color:#ffe477}.tvInterviewName{text-align:center;font-size:2.65rem;font-weight:900;margin:10px}.tvInterviewStat{font-size:1.3rem;color:#ffdd80}
+.tvTwinCards{display:grid;grid-template-columns:1fr 1fr;gap:15px}.tvBingoPanel{background:#243767;border:2px solid #5b79b0;border-radius:12px;padding:13px;color:white;min-width:0}
+.tvBingoPanel h3{font-size:1.23rem;text-align:center;min-height:2.5em}.tvBingoPanel p{text-align:center;font-size:.9rem}
+.tvGridHolder{position:relative}.tvBingoGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tvBingoCell{display:flex;flex-direction:column;min-height:90px;align-items:center;justify-content:space-between;text-align:center;padding:7px 4px;border-radius:7px;color:#172742;border:1px solid #8d9eaa;overflow-wrap:anywhere}
+.tvBingoCell b{font-size:.91rem}.tvBingoCell span{font-size:.73rem}.tvBingoCell small{font-size:.70rem;color:#32496b}
+.tvInterviewQ{background:#ffde85;color:#142247;font-size:1.12rem;font-weight:850;text-align:center;border-radius:9px;padding:14px;margin-top:14px}
+.retroTitle{display:grid;gap:10px;justify-items:center;margin-top:10px}.retroWord{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:900;text-transform:uppercase;letter-spacing:2px;line-height:1;padding:.2em .45em;border:4px solid #142247;border-radius:10px;box-shadow:0 5px 0 #142247, 0 10px 0 rgba(0,0,0,.12)}.retroWord.main{font-size:clamp(2rem,4vw,3.2rem);background:#ff5b45;color:#fff3a7;text-shadow:3px 3px #193873,6px 6px #0d1633}.retroWord.sub{font-size:clamp(1.7rem,3.4vw,2.8rem);background:#36a3ff;color:#fff7b2;text-shadow:3px 3px #1d7042,6px 6px #17365e}.retroMini{font-size:.95rem;color:#d9e4ff}.starWinner{display:inline-flex;align-items:center;gap:8px;background:#ffe686;color:#162448;border:3px solid #f7bf36;border-radius:999px;padding:8px 16px;font-weight:900;box-shadow:0 3px 0 #a26c00;margin:6px auto 10px}.starWinner .big{font-size:1.25em}.victorySub{font-size:1.02rem;color:#dbe6ff}
+.tvSummary h2{text-align:center;color:#ffde73;font-size:1.4rem;margin:24px 0}.tvOverall{border-collapse:separate;border-spacing:2px;width:100%;font-size:.99rem}.tvOverall th,.tvOverall td{background:#293e78;border-radius:3px;padding:9px 8px;text-align:center;border:1px solid #536cad}.tvOverall thead th{background:#f7c956;color:#182345;font-size:1rem}.tvOverall tbody th{text-align:left;color:#fff3ba}.tvOverall td small{display:block;font-size:.72rem;color:#cbd6ee}.tvPage{font-size:1rem;color:#ffe477;text-align:center;margin-top:15px}.tvLeaderboard{max-width:1000px;margin:auto;display:grid;gap:4px}.tvBoardRow{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;background:#2a4280;padding:8px 18px;border-radius:6px;font-size:1.21rem}
+@media(max-width:760px){.tvTwinCards{grid-template-columns:1fr}.tvInterviewName{font-size:1.75rem}.tvBingoCell{min-height:75px}.tvOverall{font-size:.68rem}.tvOverall th,.tvOverall td{padding:5px 3px}.tvOverall td small{font-size:.57rem}.tvAwardRow{font-size:1rem}}
+
+/* Hosted split-screen edition */
+body.mode-tv {background:#09132b;color:#fff}
+body.mode-tv .wrap{max-width:1550px;padding:13px}
+body.mode-tv header{padding:4px 15px}
+body.mode-tv .footer{display:none}
+body.mode-host header{padding-bottom:9px}
+.tv .qrbox{min-width:215px;min-height:160px}
+#actualQr{display:flex;justify-content:center;margin:5px}
+#actualQr img{border:5px solid #fff}
+#actualQr canvas{margin:auto}
+.tvLink{font-size:.8rem;word-break:break-all;color:#bed9ff}
+.statusline{font-size:.87rem;opacity:.8}
+.authPanel{padding:25px;border:2px solid #dae4f4;background:white;border-radius:13px;max-width:500px}
+.authPanel input{margin:9px 0}
+.pixelstar{background:#ffe564;color:#263259;border:3px solid #fff3a6;border-radius:15px;padding:12px 18px;font-weight:900;display:inline-flex;gap:12px;align-items:center;box-shadow:0 5px 0 #d29b2b;margin:8px}
+.pixelstar span:first-child{font-size:2.1rem}
