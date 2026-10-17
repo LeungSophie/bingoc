@@ -105,3 +105,55 @@ body.mode-host header{padding-bottom:9px}
 .authPanel input{margin:9px 0}
 .pixelstar{background:#ffe564;color:#263259;border:3px solid #fff3a6;border-radius:15px;padding:12px 18px;font-weight:900;display:inline-flex;gap:12px;align-items:center;box-shadow:0 5px 0 #d29b2b;margin:8px}
 .pixelstar span:first-child{font-size:2.1rem}
+
+
+/* BingoC TV attack v2.2 — original retro mushroom projectile, CSS-driven. */
+.tvsky .attackShot{
+ position:absolute;left:37%;bottom:108px;width:48px;height:48px;
+ z-index:4;pointer-events:none;opacity:0;
+ filter:drop-shadow(3px 4px 0 #192b53);
+}
+.tvsky .attackShot svg{width:100%;height:100%;image-rendering:pixelated}
+.tvsky.attackAction .attackShot{animation:pixelMushroomThrow 1.35s ease-in-out both}
+.tvsky.attackAction .attackShot.fromFi{animation-name:pixelMushroomThrowFi}
+.tvsky.attackAction .attackShot.fromMag{animation-name:pixelMushroomThrowMag}
+@keyframes pixelMushroomThrowFi{
+ 0%{left:21%;bottom:107px;transform:scale(.6) rotate(-25deg);opacity:0}
+ 15%{left:24%;bottom:130px;transform:scale(1) rotate(0);opacity:1}
+ 53%{left:53%;bottom:182px;transform:scale(1.15) rotate(180deg);opacity:1}
+ 85%{left:81%;bottom:120px;transform:scale(1.1) rotate(360deg);opacity:1}
+ 96%,100%{left:81%;bottom:120px;transform:scale(.4) rotate(380deg);opacity:0}
+}
+@keyframes pixelMushroomThrowMag{
+ 0%{left:39%;bottom:107px;transform:scale(.6) rotate(-25deg);opacity:0}
+ 15%{left:42%;bottom:135px;transform:scale(1) rotate(0);opacity:1}
+ 53%{left:62%;bottom:190px;transform:scale(1.15) rotate(180deg);opacity:1}
+ 85%{left:81%;bottom:120px;transform:scale(1.1) rotate(360deg);opacity:1}
+ 96%,100%{left:81%;bottom:120px;transform:scale(.4) rotate(380deg);opacity:0}
+}
+.tvsky .heroAttack{animation:heroAttackLeap 1.15s ease-out both}
+@keyframes heroAttackLeap{
+ 0%,100%{transform:translate(0,0) scale(1)}
+ 37%{transform:translate(34px,-65px) scale(1.1)}
+ 66%{transform:translate(50px,-36px) scale(1)}
+}
+.tvsky .boss.bossHit{animation:bossDamage 1.4s .65s ease both}
+@keyframes bossDamage{
+ 0%,100%{transform:translateX(0) rotate(0);opacity:1;filter:drop-shadow(4px 5px 0 #1a2b58)}
+ 15%,50%{transform:translateX(-8px) rotate(-11deg);filter:brightness(3) drop-shadow(0 0 14px #ffe462)}
+ 33%,73%{transform:translateX(10px) rotate(11deg);opacity:.35;filter:brightness(2)}
+}
+.tvsky .impactBurst{position:absolute;right:12%;bottom:122px;opacity:0;color:#ffe457;
+ font-size:6rem;text-shadow:3px 4px #ff643d,0 0 25px #ffeb72;z-index:5;pointer-events:none}
+.tvsky.attackAction .impactBurst{animation:monsterImpact 1.45s ease-out both}
+@keyframes monsterImpact{
+ 0%,64%{opacity:0;transform:scale(.15) rotate(-30deg)}
+ 72%{opacity:1;transform:scale(1.35) rotate(0deg)}
+ 85%{opacity:.9;transform:scale(.9) rotate(15deg)}
+ 100%{opacity:0;transform:scale(1.7) rotate(45deg)}
+}
+.tvsky.powerBingo .impactBurst{color:#f2a1ff;text-shadow:3px 4px #7d36ec,0 0 28px #f5c5ff}
+.tvsky.attackAction .tvbanner{border-color:#ffde75;background:#15235ce9}
+@media(prefers-reduced-motion:reduce){
+ .tvsky.attackAction .attackShot,.tvsky .heroAttack,.tvsky .boss.bossHit,.tvsky.attackAction .impactBurst{animation-duration:.35s}
+}

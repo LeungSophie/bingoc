@@ -8,6 +8,8 @@ const LIVE=!!(window.BINGOC_CONFIG?.firebase?.apiKey && !window.BINGOC_CONFIG.fi
 let dbRef=null,auth=null,fb=null,authenticated=false,hostValidated=false,serverStateReady=false;
 // Keep the locally-created TV event separate from Firebase's incoming state.
 let pendingEvent=null;
+let tvVisualEvent=null; // TV-only feedback inferred from the actual newly stored match
+let previousRemote=null;
 const HOST_FIELDS=['phase','target','boost','startAt','pausedAt','pausedMs','finished','awardIndex','awardView','awarded','awardRevealed','awardWinners','finalAttack','finalAttackAt','tvOverride','summaryPage','summaryKey','version'];
 const USER_KEY='bingoc_demo_current_'+ROOM;
 const categories=['最不喜歡的家居雜務','喜歡的聖經書卷','最想旅行的國家','小時候夢想職業','最喜歡的飲品','最喜歡的休閒活動','最想學習的技能','最欣賞的聖經人物','最想親眼見證的聖經事件'];
@@ -73,7 +75,7 @@ function normaliseRemote(d){
  return {...defaults(),...host,players,entries,event:d.event||null};
 }
 async function setup(){
- document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.1':'本地示範模式（未填 Firebase 設定）';
+ document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.2':'本地示範模式（未填 Firebase 設定）';
  if(!LIVE){serverStateReady=true;render();return;}
  try{
   fb=firebase.initializeApp(window.BINGOC_CONFIG.firebase,'bingoc-'+view);
@@ -98,7 +100,29 @@ let subscribed=false;
 function subscribeRemote(){
  if(subscribed)return;subscribed=true;
  dbRef.on('value',snap=>{
-  state=normaliseRemote(snap.val()||{});serverStateReady=true;
+  const next=normaliseRemote(snap.val()||{});
+  if(view==='tv' && previousRemote && next.phase==='playing'){
+   // Use the ACTUAL entries difference as a fallback source for TV effects.
+   // That prevents a stale JOIN event (WELCOME SOPHIE) from masking a new match.
+   const added=[];
+   for(const p of next.players){
+    const before=previousRemote.entries[p.id]||Array.from({length:9},()=>[]);
+    const after=next.entries[p.id]||Array.from({length:9},()=>[]);
+    for(let i=0;i<9;i++){
+     const oldSet=new Set(before[i]||[]);
+     for(const friendId of (after[i]||[])){
+      if(!oldSet.has(friendId))added.push({id:p.id,name:p.name});
+     }
+    }
+   }
+   if(added.length){
+    const p=added[added.length-1];
+    const kind=next.event?.type==='bingo'?'bingo':'match';
+    tvVisualEvent={text:`${p.name.toUpperCase()} +1 COMMON POWER`,type:kind,actor:p.id,at:Date.now()};
+   }
+  }
+  previousRemote=next;
+  state=next;serverStateReady=true;
   if(view==='phone'&&authenticated)currentId=auth.currentUser.uid;
   render();
  },e=>{warning='Firebase 讀取失敗：'+e.message;render()});
@@ -129,7 +153,7 @@ async function join(name){
  currentId=p.id;localStorage.setItem(USER_KEY,currentId);inputName='';warning='';
  nowEvent(`WELCOME, ${name.toUpperCase()}!`,'join');SAVE()
 }
-function addMatch(id,index,otherId){warning='';if(state.phase!=='playing'){warning='遊戲尚未開始，或結果已凍結';return render()}if(id===otherId){warning='不能選擇自己';return render()}if(!state.players.some(p=>p.id===otherId)){warning='找不到該玩家';return render()}const cards=activeEntries(id),cell=cards[index];if(cell.includes(otherId)){warning='同一格不可重複名字';return render()}if(cell.length>=2){warning='每格最多記錄兩位朋友';return render()}if(cards.filter((c,i)=>i!==index&&c.includes(otherId)).length>=2){warning='同一位朋友最多出現於兩個類別';return render()}const before=personMetrics(id).normal;const newCards=cards.map(c=>[...c]);newCards[index].push(otherId);state.entries[id]=newCards;const after=personMetrics(id).normal;const p=state.players.find(x=>x.id===id);if(before===0&&after>0)p.firstBingoAt=Date.now();if(after>before)nowEvent(`${p.name} — BINGO!`,'bingo');else nowEvent(`${p.name} +1 COMMON POWER`,'match');search='';SAVE()}
+function addMatch(id,index,otherId){warning='';if(state.phase!=='playing'){warning='遊戲尚未開始，或結果已凍結';return render()}if(id===otherId){warning='不能選擇自己';return render()}if(!state.players.some(p=>p.id===otherId)){warning='找不到該玩家';return render()}const cards=activeEntries(id),cell=cards[index];if(cell.includes(otherId)){warning='同一格不可重複名字';return render()}if(cell.length>=2){warning='每格最多記錄兩位朋友';return render()}if(cards.filter((c,i)=>i!==index&&c.includes(otherId)).length>=2){warning='同一位朋友最多出現於兩個類別';return render()}const before=personMetrics(id).normal;const newCards=cards.map(c=>[...c]);newCards[index].push(otherId);state.entries[id]=newCards;const after=personMetrics(id).normal;const p=state.players.find(x=>x.id===id);if(before===0&&after>0)p.firstBingoAt=Date.now();nowEvent(`${p.name.toUpperCase()} +1 COMMON POWER`,after>before?'bingo':'match');search='';SAVE()}
 function removeMatch(id,index,otherId){if(state.phase!=='playing'){warning='遊戲已凍結，不能修改';return render()}const cards=activeEntries(id).map(c=>[...c]);cards[index]=cards[index].filter(x=>x!==otherId);state.entries[id]=cards;if(personMetrics(id).normal===0)state.players.find(p=>p.id===id).firstBingoAt=null;nowEvent('配對紀錄已更新','edit');SAVE()}
 function incoming(){const o={};for(const p of state.players)o[p.id]={senders:new Set(),cats:new Set(),records:0};for(const a of state.players){activeEntries(a.id).forEach((arr,i)=>{for(const b of arr){if(o[b]){o[b].senders.add(a.id);o[b].cats.add(i);o[b].records++}}})}return o}
 const awardDefs=[{key:'king',name:'🏆 Bingo 王者',title:'BINGO CHAMPION',desc:'總分最高'},{key:'pioneer',name:'⚡ Bingo 先鋒',title:'BINGO PIONEER',desc:'最早完成第一條 Bingo'},{key:'magnet',name:'💛 人氣磁石',title:'PEOPLE MAGNET',desc:'被最多不同人記錄'},{key:'diverse',name:'🌈 多元興趣達人',title:'COMMON IN MANY WAYS',desc:'被記錄的不同類別最多'},{key:'unique',name:'✨ 最獨特靈魂',title:'UNIQUE SOUL',desc:'被記錄的類別最少（趣味統計）'}];
@@ -253,7 +277,16 @@ function tvFullLeaderboard(){
 }
 
 function tv(){
- const gm=globalMetrics(),pct=Math.min(100,gm.totalPower/gm.target*100),lobby=state.phase==='lobby',has=state.event&&Date.now()-state.event.at<10000,ready=gm.totalPower>=gm.target;
+ const gm=globalMetrics(),pct=Math.min(100,gm.totalPower/gm.target*100),lobby=state.phase==='lobby',ready=gm.totalPower>=gm.target;
+ const localFresh=tvVisualEvent && Date.now()-tvVisualEvent.at<2300;
+ const remoteFresh=state.event && Date.now()-state.event.at<2200;
+ // A registration greeting is for the lobby only. Match messages come from newly
+ // recorded Bingo entries, not an earlier WELCOME event still in the database.
+ const fx=localFresh?tvVisualEvent:(remoteFresh && (state.event.type!=='join'||lobby)?state.event:null);
+ const has=!!fx, attacking=has&&['match','bingo'].includes(fx.type), bingoAttack=has&&fx.type==='bingo';
+ const actorHash=String(fx?.actor||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+ const firingFi=actorHash%2===0;
+ const projectileSvg='<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="crispEdges"><path fill="#3a241d" d="M12 2h8v3h5v4h4v11h-5v3H8v-3H3V9h4V5h5z"/><path fill="#ef4c3f" d="M12 5h8v3h5v4h2v6H5v-6h2V8h5z"/><path fill="#fff8cd" d="M11 9h5v6h-5zM21 12h4v6h-4z"/><path fill="#fff1d3" d="M10 19h12v8H10z"/><path fill="#332c26" d="M13 21h2v4h-2zM18 21h2v4h-2z"/></svg>';
  let s=`<div class="tv"><div class="row space tvHeader"><div class="pixel" style="color:#ffe477">SUPER AACC SIS. ★ BINGOC</div><b class="pixel">${state.players.length} PLAYERS</b></div>`;
  if(state.tvOverride==='attack'&&state.finalAttack&&Date.now()-(state.finalAttackAt||0)<3400){
   const elapsed=Date.now()-(state.finalAttackAt||0),ATTACK_MS=3150;
@@ -273,9 +306,9 @@ function tv(){
   }
  }else if(state.phase==='summary')s+=tvFullLeaderboard();
  else{
-  s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky"><span class="fi ${has&&state.event.type!=='edit'?'jump':''}">👧🏻</span><span class="mag ${has&&state.event.type!=='edit'?'jump':''}">👩🏽</span><span class="boss">👾</span><div class="tvground"></div>${has&&state.event.type!=='edit'?`<div class="tvbanner pixel">${esc(state.event.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
+  s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky ${attacking?'attackAction':''} ${bingoAttack?'powerBingo':''}"><span class="fi ${attacking&&firingFi?'heroAttack':''}">👧🏻</span><span class="mag ${attacking&&!firingFi?'heroAttack':''}">👩🏽</span><span class="boss ${attacking?'bossHit':''}">👾</span><div class="tvground"></div>${attacking?`<span class="attackShot ${firingFi?'fromFi':'fromMag'}" aria-hidden="true">${projectileSvg}</span><span class="impactBurst" aria-hidden="true">✹</span>`:''}${has&&fx.type!=='edit'?`<div class="tvbanner pixel">${esc(fx.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
  }
- s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.1 · 原創像素 GIF。</p>';return s;
+ s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.2 · 原創像素 GIF。</p>';return s;
 }
 
 let tvBannerTimer=null;
@@ -292,9 +325,12 @@ function render(){
  if(view==='tv'&&state.phase==='lobby'&&document.getElementById('actualQr')&&window.QRCode){
   new QRCode(document.getElementById('actualQr'),{text:new URL('phone.html?room='+ROOM,location.href).href,width:154,height:154});
  }
- if(view==='tv'&&state.event?.at){
-  const remaining=10000-(Date.now()-state.event.at);
-  if(remaining>0&&remaining<=10000)tvBannerTimer=setTimeout(()=>render(),remaining+80);
+ if(view==='tv'){
+  const now=Date.now();
+  const tvTime=tvVisualEvent?.at && 2300-(now-tvVisualEvent.at);
+  const remoteTime=state.event?.at && 2200-(now-state.event.at);
+  const remaining=tvTime>0?tvTime:remoteTime>0?remoteTime:0;
+  if(remaining)tvBannerTimer=setTimeout(()=>render(),remaining+50);
  }
 }
 function mockSeed(){if(state.phase!=='lobby')return;if(!confirm('載入示範玩家將覆蓋目前資料，確定嗎？'))return;state=defaults();const names=['Sophie','Mary','Peter','Helen','Simon','Jenny','David','Susan','Alex','Grace','Fi','Mag'];state.players=names.map((name,i)=>({id:'demo'+i,name,joinedAt:Date.now()+i,firstBingoAt:null}));for(const p of state.players)state.entries[p.id]=Array.from({length:9},()=>[]);names.forEach((name,i)=>{for(let j=0;j<5;j++){let cat=(i+j*2)%9,other=(i+j+1)%names.length;let row=state.entries['demo'+i][cat];if(row.length<2&&!row.includes('demo'+other)&&state.entries['demo'+i].filter(x=>x.includes('demo'+other)).length<2)row.push('demo'+other)}});for(let i=0;i<state.players.length;i++){if(personMetrics(state.players[i].id).normal>0)state.players[i].firstBingoAt=Date.now()+i*1000;}currentId=state.players[0].id;localStorage.setItem(USER_KEY,currentId);warning='';nowEvent('12 DEMO PLAYERS READY','join');SAVE()}
