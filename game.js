@@ -6,7 +6,8 @@ const ROOM=(new URLSearchParams(location.search).get('room')||'AACC').replace(/[
 const KEY='bingoc_demo_room_'+ROOM;
 const LIVE=!!(window.BINGOC_CONFIG?.firebase?.apiKey && !window.BINGOC_CONFIG.firebase.apiKey.startsWith('PASTE_'));
 let dbRef=null,auth=null,fb=null,authenticated=false,hostValidated=false,serverStateReady=false;
-let lastEventPublishedAt=0;
+// Keep the locally-created TV event separate from Firebase's incoming state.
+let pendingEvent=null;
 const HOST_FIELDS=['phase','target','boost','startAt','pausedAt','pausedMs','finished','awardIndex','awardView','awarded','awardRevealed','awardWinners','finalAttack','finalAttackAt','tvOverride','summaryPage','summaryKey','version'];
 const USER_KEY='bingoc_demo_current_'+ROOM;
 const categories=['最不喜歡的家居雜務','喜歡的聖經書卷','最想旅行的國家','小時候夢想職業','最喜歡的飲品','最喜歡的休閒活動','最想學習的技能','最欣賞的聖經人物','最想親眼見證的聖經事件'];
@@ -23,24 +24,43 @@ const activeEntries=id=>state.entries[id]||Array.from({length:9},()=>[]);
 const personMetrics=id=>{const cells=activeEntries(id),counts=cells.map(a=>a.length),normal=LINES.filter(l=>l.every(i=>counts[i]>=1)).length,double=LINES.filter(l=>l.every(i=>counts[i]>=2)).length,records=counts.reduce((a,b)=>a+b,0);return {cells,counts,normal,double,records,score:records*10+normal*30+double*40+(counts.every(n=>n>=1)?30:0)};};
 const globalMetrics=()=>{const m=state.players.map(p=>({id:p.id,...personMetrics(p.id)}));const entries=m.reduce((a,x)=>a+x.records,0),first=m.filter(x=>x.normal>0).length;return {records:entries,bingoPeople:first,playerPower:entries+first*3,totalPower:entries+first*3+state.boost,target:state.target||Math.max(1,state.players.length*5)};};
 async function SAVE(){
+ // A Realtime Database listener can run during any await below and replace state.
+ // Capture the outgoing event first; never re-send a remote/stale state.event.
+ const eventToPublish=pendingEvent;
+ pendingEvent=null;
  if(!LIVE){localStorage.setItem(KEY,JSON.stringify(state));render();return}
  try{
+  const updates={};
   if(view==='host'){
    if(!hostValidated)throw new Error('請先登入主持帳戶');
-   const payload={};for(const k of HOST_FIELDS)payload[k]=state[k]??null;
-   await dbRef.child('host').update(payload);
+   for(const k of HOST_FIELDS)updates['host/'+k]=state[k]??null;
   }else if(view==='phone'){
    if(!authenticated||currentId!==auth.currentUser?.uid)throw new Error('玩家登入資料未準備好');
-   const arr=state.entries[currentId]||Array.from({length:9},()=>[]);
-   await dbRef.child('entries').child(currentId).set(arr);
+   updates['entries/'+currentId]=state.entries[currentId]||Array.from({length:9},()=>[]);
+  }
+  if(eventToPublish){
+   updates.event={
+    text:String(eventToPublish.text||'').slice(0,100),
+    type:eventToPublish.type,
+    at:firebase.database.ServerValue.TIMESTAMP,
+    actor:auth.currentUser.uid
+   };
+  }
+  // Make matching updates and TV events ONE atomic Firebase operation.
+  // TV will see both at the same time, rather than lose the event to a listener callback.
+  if(Object.keys(updates).length)await dbRef.update(updates);
+  if(view==='phone'){
    const p=state.players.find(x=>x.id===currentId);
-   if(p?.firstBingoAt)await dbRef.child('players').child(currentId).child('firstBingoAt').transaction(x=>x||firebase.database.ServerValue.TIMESTAMP);
+   if(p?.firstBingoAt){
+    await dbRef.child('players').child(currentId).child('firstBingoAt')
+      .transaction(x=>x||firebase.database.ServerValue.TIMESTAMP);
+   }
   }
-  if(state.event?.type && state.event.at > lastEventPublishedAt && (view!=='host' || state.event.actor===auth.currentUser?.uid || !state.event.actor)){
-   await dbRef.child('event').set({text:String(state.event.text||'').slice(0,100),type:state.event.type,at:firebase.database.ServerValue.TIMESTAMP,actor:auth.currentUser.uid});
-   lastEventPublishedAt=state.event.at;
-  }
- }catch(e){warning='同步失敗：'+e.message;console.error(e)}
+ }catch(e){
+  if(eventToPublish&&!pendingEvent)pendingEvent=eventToPublish;
+  warning='同步失敗：'+e.message;
+  console.error(e);
+ }
  render();
 }
 
@@ -53,7 +73,7 @@ function normaliseRemote(d){
  return {...defaults(),...host,players,entries,event:d.event||null};
 }
 async function setup(){
- document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2':'本地示範模式（未填 Firebase 設定）';
+ document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.1':'本地示範模式（未填 Firebase 設定）';
  if(!LIVE){serverStateReady=true;render();return;}
  try{
   fb=firebase.initializeApp(window.BINGOC_CONFIG.firebase,'bingoc-'+view);
@@ -83,7 +103,7 @@ function subscribeRemote(){
   render();
  },e=>{warning='Firebase 讀取失敗：'+e.message;render()});
 }
-const nowEvent=(text,type='normal')=>{state.event={text,type,at:Date.now()};};
+const nowEvent=(text,type='normal')=>{pendingEvent={text,type,at:Date.now()};state.event=pendingEvent;};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 async function join(name){
  name=name.trim();warning='';
@@ -255,10 +275,12 @@ function tv(){
  else{
   s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky"><span class="fi ${has&&state.event.type!=='edit'?'jump':''}">👧🏻</span><span class="mag ${has&&state.event.type!=='edit'?'jump':''}">👩🏽</span><span class="boss">👾</span><div class="tvground"></div>${has&&state.event.type!=='edit'?`<div class="tvbanner pixel">${esc(state.event.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
  }
- s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2 · 原創像素 GIF。</p>';return s;
+ s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.1 · 原創像素 GIF。</p>';return s;
 }
 
+let tvBannerTimer=null;
 function render(){
+ if(tvBannerTimer){clearTimeout(tvBannerTimer);tvBannerTimer=null;}
  document.body.classList.toggle('mode-phone',view==='phone');
  document.body.classList.toggle('mode-tv',view==='tv');
  document.body.classList.toggle('mode-host',view==='host');
@@ -269,6 +291,10 @@ function render(){
  root.innerHTML=({phone,host,tv})[view]();
  if(view==='tv'&&state.phase==='lobby'&&document.getElementById('actualQr')&&window.QRCode){
   new QRCode(document.getElementById('actualQr'),{text:new URL('phone.html?room='+ROOM,location.href).href,width:154,height:154});
+ }
+ if(view==='tv'&&state.event?.at){
+  const remaining=10000-(Date.now()-state.event.at);
+  if(remaining>0&&remaining<=10000)tvBannerTimer=setTimeout(()=>render(),remaining+80);
  }
 }
 function mockSeed(){if(state.phase!=='lobby')return;if(!confirm('載入示範玩家將覆蓋目前資料，確定嗎？'))return;state=defaults();const names=['Sophie','Mary','Peter','Helen','Simon','Jenny','David','Susan','Alex','Grace','Fi','Mag'];state.players=names.map((name,i)=>({id:'demo'+i,name,joinedAt:Date.now()+i,firstBingoAt:null}));for(const p of state.players)state.entries[p.id]=Array.from({length:9},()=>[]);names.forEach((name,i)=>{for(let j=0;j<5;j++){let cat=(i+j*2)%9,other=(i+j+1)%names.length;let row=state.entries['demo'+i][cat];if(row.length<2&&!row.includes('demo'+other)&&state.entries['demo'+i].filter(x=>x.includes('demo'+other)).length<2)row.push('demo'+other)}});for(let i=0;i<state.players.length;i++){if(personMetrics(state.players[i].id).normal>0)state.players[i].firstBingoAt=Date.now()+i*1000;}currentId=state.players[0].id;localStorage.setItem(USER_KEY,currentId);warning='';nowEvent('12 DEMO PLAYERS READY','join');SAVE()}
