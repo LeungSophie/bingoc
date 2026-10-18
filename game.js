@@ -1,13 +1,13 @@
 
 (()=>{'use strict';
-const ATTACK_GIF='assets/final_attack.gif?v=2_3d';
+const ATTACK_GIF='assets/final_attack.gif?v=2_3e';
 const FINAL_ATTACK_DURATION_MS=6380;
-const ENDING_GIF='assets/happy_ending.gif?v=2_3d';
-const HERO_FI='assets/fi.png?v=2_3d';
-const HERO_MAG='assets/mag.png?v=2_3d';
-const HERO_PRINCE='assets/prince.png?v=2_3d';
-const HERO_MONSTER='assets/monster.png?v=2_3d';
-const WINNER_STAR_GIF='assets/winner_star.gif?v=2_3d';
+const ENDING_GIF='assets/happy_ending.gif?v=2_3e';
+const HERO_FI='assets/fi.png?v=2_3e';
+const HERO_MAG='assets/mag.png?v=2_3e';
+const HERO_PRINCE='assets/prince.png?v=2_3e';
+const HERO_MONSTER='assets/monster.png?v=2_3e';
+const WINNER_STAR_GIF='assets/winner_star.gif?v=2_3e';
 const ROOM=(new URLSearchParams(location.search).get('room')||'AACC').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,32)||'AACC';
 const KEY='bingoc_demo_room_'+ROOM;
 const LIVE=!!(window.BINGOC_CONFIG?.firebase?.apiKey && !window.BINGOC_CONFIG.firebase.apiKey.startsWith('PASTE_'));
@@ -299,13 +299,13 @@ function tv(){
  let s=`<div class="tv"><div class="row space tvHeader"><div class="pixel" style="color:#ffe477">SUPER AACC SIS. ★ BINGOC</div><b class="pixel">${state.players.length} PLAYERS</b></div>`;
  if(state.tvOverride==='attack'&&state.finalAttack&&Date.now()-(state.finalAttackAt||0)<FINAL_ATTACK_DURATION_MS){
   const elapsed=Date.now()-(state.finalAttackAt||0);
-  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK! — AWKWARDNESS MONSTER</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="Fi and Mag throw a giant mushroom; Awkwardness Monster grows and explodes; the sisters cheer and the flag lowers. No prince appears." /><h2 class="pixel" style="color:#ffdc73">MONSTER DEFEATED! · TEAM WIN!</h2><p class="victorySub">Fi & Mag 用超大蘑菇擊敗陌生怪，城堡旗幟降下，兩姊妹跳起慶祝！</p><p class="tvPage">Final Attack 結束後將自動進入頒獎。王子只在 Happy Ending 出現。</p></div>`;
+  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK! — AWKWARDNESS MONSTER</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="Pol and Mag throw a giant mushroom; Awkwardness Monster grows and explodes; the sisters cheer and the flag lowers. No prince appears." /><h2 class="pixel" style="color:#ffdc73">MONSTER DEFEATED! · TEAM WIN!</h2><p class="victorySub">Pol & Mag 用超大蘑菇擊敗陌生怪，城堡旗幟降下，兩姊妹跳起慶祝！</p><p class="tvPage">Final Attack 結束後將自動進入頒獎。王子只在 Happy Ending 出現。</p></div>`;
   setTimeout(()=>{if(view==='tv'&&state.tvOverride==='attack')render()}, Math.max(120,FINAL_ATTACK_DURATION_MS-elapsed+120));
  }else if(state.tvOverride==='ending'&&state.finalAttack){
-  s+=`<div class="victoryScreen"><h2 class="pixel">HAPPY ENDING!</h2><img class="pixelGif" src="${ENDING_GIF}" alt="The prince jumps to Fi and Mag, then all three jump together in the happy ending" /><h2 class="pixel" style="color:#ffdc73">THE PRINCE IS SAVED! 🎉</h2><p class="victorySub">最終結局：王子跳到 Fi 同 Mag 身邊，三個人一齊跳躍慶祝！</p><p class="tvPage">主持可隨時切換回完整排行榜。</p></div>`;
+  s+=`<div class="victoryScreen"><h2 class="pixel">HAPPY ENDING!</h2><img class="pixelGif" src="${ENDING_GIF}" alt="The prince jumps to Pol and Mag, then all three jump together in the happy ending" /><h2 class="pixel" style="color:#ffdc73">THE PRINCE IS SAVED! 🎉</h2><p class="victorySub">最終結局：王子跳到 Pol 同 Mag 身邊，三個人一齊跳躍慶祝！</p><p class="tvPage">主持可隨時切換回完整排行榜。</p></div>`;
  }else if(lobby){
   const joinFx=has&&fx.type==='join';
-  s+=`<div class="tvLobby"><div class="retroTitle"><div class="retroWord main">AACC SIS.</div><div class="retroWord sub">BingoC!</div><div class="retroMini retroMiniBig">Super AACC Sis. · Common Connections Adventure</div></div><div class="lobbyMeetRow"><div class="lobbyMeetBanner"><h3 class="pixel">Meet Fi & Mag!</h3><p>Find common interests, make new friends, and beat the Awkwardness Monster!</p></div><div class="lobbySprites ${joinFx?'lobbyCelebrate':''}"><div class="lobbyUnit hero fi wave"><img src="${HERO_FI}" alt="Fi" /><b>Fi</b></div><div class="lobbyUnit hero mag wave2"><img src="${HERO_MAG}" alt="Mag" /><b>Mag</b></div><div class="lobbyUnit monster"><img src="${HERO_MONSTER}" alt="Awkwardness Monster" /><b>Awkwardness Monster</b></div></div></div>${joinFx?`<div class="tvbanner pixel welcomeBanner">${esc(fx.text)}</div>`:''}<p class="lobbyIntro">請掃描活動 QR Code 開啟玩家頁，輸入姓名加入</p><div class="qrbox"><div id="actualQr"></div><div style="font-size:.9rem">ROOM: ${esc(ROOM)}</div></div><div class="tvLink">${esc(new URL('phone.html?room='+ROOM,location.href).href)}</div><h3 class="joinedBig">PLAYERS JOINED: ${state.players.length}</h3><div class="tvnames tvnamesBig">${state.players.map(p=>`<span class="tvname tvnameBig">${esc(p.name)}</span>`).join('')}</div></div>`;
+  s+=`<div class="tvLobby"><div class="retroTitle"><div class="retroWord main">AACC SIS.</div><div class="retroWord sub">BingoC!</div><div class="retroMini retroMiniBig">Super AACC Sis. · Common Connections Adventure</div></div><div class="lobbyMeetRow ${joinFx?'lobbyCelebrate':''}"><div class="lobbyUnit hero pol wave"><img src="${HERO_FI}" alt="Pol" /><b>Pol</b></div><div class="lobbyMeetBanner"><h3 class="pixel">Meet Pol & Mag!</h3><p>Find common interests, make new friends, and beat the Awkwardness Monster!</p></div><div class="lobbyRightGroup"><div class="lobbyUnit hero mag wave2"><img src="${HERO_MAG}" alt="Mag" /><b>Mag</b></div><div class="lobbyUnit monster"><img src="${HERO_MONSTER}" alt="Awkwardness Monster" /><b>Awkwardness<br>Monster</b></div></div></div>${joinFx?`<div class="tvbanner pixel welcomeBanner">${esc(fx.text)}</div>`:''}<p class="lobbyIntro">請掃描活動 QR Code 開啟玩家頁，輸入姓名加入</p><div class="qrbox"><div id="actualQr"></div><div style="font-size:.9rem">ROOM: ${esc(ROOM)}</div></div><div class="tvLink">${esc(new URL('phone.html?room='+ROOM,location.href).href)}</div><h3 class="joinedBig">PLAYERS JOINED: ${state.players.length}</h3><div class="tvnames tvnamesBig">${state.players.map(p=>`<span class="tvname tvnameBig">${esc(p.name)}</span>`).join('')}</div></div>`;
  }else if(state.phase==='awards'){
   const a=awardDefs[state.awardIndex],arr=awardTables().by[a.key],w=candidate(state.awardIndex),limit=Math.min(3,arr.length);
   if(state.awardView==='interview'&&state.awardWinners[a.key])s+=w?tvInterview(a,w):'<div class="tvMessage" style="text-align:center;margin:100px 0"><h2>本獎沒有合資格玩家</h2><p>例如：未有人完成第一條 Bingo 線</p></div>';
@@ -315,9 +315,9 @@ function tv(){
   }
  }else if(state.phase==='summary')s+=tvFullLeaderboard();
  else{
-  s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky ${attacking?'attackAction':''} ${bingoAttack?'powerBingo':''}"><img class="spriteUnit fi ${attacking&&firingFi?'heroAttack':''}" src="${HERO_FI}" alt="Fi" /><img class="spriteUnit mag ${attacking&&!firingFi?'heroAttack':''}" src="${HERO_MAG}" alt="Mag" /><img class="spriteUnit boss ${attacking?'bossHit':''}" src="${HERO_MONSTER}" alt="Awkwardness Monster" /><div class="tvground"></div>${attacking?`<span class="attackShot ${firingFi?'fromFi':'fromMag'}" aria-hidden="true">${projectileSvg}</span><span class="impactBurst" aria-hidden="true">✹</span>`:''}${has&&fx.type!=='edit'?`<div class="tvbanner pixel">${esc(fx.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
+  s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">POL & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky ${attacking?'attackAction':''} ${bingoAttack?'powerBingo':''}"><img class="spriteUnit fi ${attacking&&firingFi?'heroAttack':''}" src="${HERO_FI}" alt="Fi" /><img class="spriteUnit mag ${attacking&&!firingFi?'heroAttack':''}" src="${HERO_MAG}" alt="Mag" /><img class="spriteUnit boss ${attacking?'bossHit':''}" src="${HERO_MONSTER}" alt="Awkwardness Monster" /><div class="tvground"></div>${attacking?`<span class="attackShot ${firingFi?'fromFi':'fromMag'}" aria-hidden="true">${projectileSvg}</span><span class="impactBurst" aria-hidden="true">✹</span>`:''}${has&&fx.type!=='edit'?`<div class="tvbanner pixel">${esc(fx.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
  }
- s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.3D · Lobby + audio refinement / Final Attack / Awards / Happy Ending。</p>';return s;
+ s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.3E · Minor lobby polish / Final Attack / Awards / Happy Ending。</p>';return s;
 }
 
 let tvBannerTimer=null;

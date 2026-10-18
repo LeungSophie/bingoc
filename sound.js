@@ -7,7 +7,7 @@
  const TRACKS={lobby:'lobby_bgm.mp3',playing:'playing_bgm.mp3',awards:'awards_bgm.mp3',ending:'ending_bgm.mp3'};
  const FX={coin:'coin.mp3',join:'join.mp3',boost:'boost.mp3',reveal:'reveal.mp3',award:'award_win.mp3',battle:'battle_start.mp3',explosion:'explosion.mp3',flag:'flag_clear.mp3'};
  const ATTACK_MS=6380;
- const KEY='bingoc_tv_sound_v23d';
+ const KEY='bingoc_tv_sound_v23e';
  let prefs={bgm:.18,sfx:.88,muted:false};
  try{prefs={...prefs,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{}
  prefs.bgm=Math.max(0,Math.min(1,Number(prefs.bgm)||0));
@@ -15,12 +15,12 @@
  let enabled=false, currentState=null,stage=null,track=null,attackTimers=[],stageTimer=null,duckTimer=null,ducked=false;
  const music={};
  Object.entries(TRACKS).forEach(([key,filename])=>{
-   const a=new Audio(ROOT+filename+'?v=23d');a.preload='auto';a.loop=true;
+   const a=new Audio(ROOT+filename+'?v=23e');a.preload='auto';a.loop=true;
    music[key]=a;
  });
  const fxPool={};
  Object.entries(FX).forEach(([key,filename])=>{
-   const a=new Audio(ROOT+filename+'?v=23d');a.preload='auto';fxPool[key]=a;
+   const a=new Audio(ROOT+filename+'?v=23e');a.preload='auto';fxPool[key]=a;
  });
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch{}};
  function volume(){
