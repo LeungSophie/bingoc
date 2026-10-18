@@ -208,3 +208,20 @@ body.mode-host header{padding-bottom:9px}
   .tvnameBig{font-size:1.16rem;padding:10px 14px}
   .welcomeBanner{left:8%;right:8%;font-size:1.15rem}
 }
+
+/* v2.3F - Lobby layout fix: cancel legacy gameplay absolute positioning
+   on Mag, and show Awkwardness Monster immediately before Mag. */
+.lobbyMeetRow .lobbyRightGroup {
+  display: flex;
+  flex-direction: row-reverse; /* DOM is Mag, Monster: visually Monster, Mag */
+  align-items: flex-end;
+  justify-content: center;
+  gap: 14px;
+}
+.lobbyMeetRow .lobbyRightGroup .lobbyUnit.mag {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+}
