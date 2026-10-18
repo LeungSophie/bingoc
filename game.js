@@ -1,6 +1,6 @@
 
 (()=>{'use strict';
-const ATTACK_GIF='assets/final_attack.gif?v=2_3a';
+const ATTACK_GIF='assets/final_attack.gif?v=2_3a1';
 const FINAL_ATTACK_DURATION_MS=6380;
 const ENDING_GIF='assets/happy_ending.gif';
 const ROOM=(new URLSearchParams(location.search).get('room')||'AACC').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,32)||'AACC';
@@ -76,7 +76,7 @@ function normaliseRemote(d){
  return {...defaults(),...host,players,entries,event:d.event||null};
 }
 async function setup(){
- document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.3A':'本地示範模式（未填 Firebase 設定）';
+ document.querySelector('.version').textContent=LIVE?'Firebase Multiplayer v2.3B':'本地示範模式（未填 Firebase 設定）';
  if(!LIVE){serverStateReady=true;render();return;}
  try{
   fb=firebase.initializeApp(window.BINGOC_CONFIG.firebase,'bingoc-'+view);
@@ -102,6 +102,7 @@ function subscribeRemote(){
  if(subscribed)return;subscribed=true;
  dbRef.on('value',snap=>{
   const next=normaliseRemote(snap.val()||{});
+  let audioAdded=0;
   if(view==='tv' && previousRemote && next.phase==='playing'){
    // Use the ACTUAL entries difference as a fallback source for TV effects.
    // That prevents a stale JOIN event (WELCOME SOPHIE) from masking a new match.
@@ -116,12 +117,14 @@ function subscribeRemote(){
      }
     }
    }
+   audioAdded=added.length;
    if(added.length){
     const p=added[added.length-1];
     const kind=next.event?.type==='bingo'?'bingo':'match';
     tvVisualEvent={text:`${p.name.toUpperCase()} +1 COMMON POWER`,type:kind,actor:p.id,at:Date.now()};
    }
   }
+  if(view==='tv')window.BingoCSound?.onState(next,previousRemote,audioAdded);
   previousRemote=next;
   state=next;serverStateReady=true;
   if(view==='phone'&&authenticated)currentId=auth.currentUser.uid;
@@ -291,7 +294,7 @@ function tv(){
  let s=`<div class="tv"><div class="row space tvHeader"><div class="pixel" style="color:#ffe477">SUPER AACC SIS. ★ BINGOC</div><b class="pixel">${state.players.length} PLAYERS</b></div>`;
  if(state.tvOverride==='attack'&&state.finalAttack&&Date.now()-(state.finalAttackAt||0)<FINAL_ATTACK_DURATION_MS){
   const elapsed=Date.now()-(state.finalAttackAt||0);
-  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK! — AWKWARDNESS MONSTER</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="The monster grows to fill the screen and explodes; Fi and Mag leap and pull down the castle flag. The prince does not appear." /><h2 class="pixel" style="color:#ffdc73">MONSTER DEFEATED! · FLAG DOWN!</h2><p class="victorySub">Fi & Mag 成功擊敗陌生怪，合力拉下城堡旗幟！</p><p class="tvPage">Final Attack 結束後將自動進入頒獎。王子只在 Happy Ending 出現。</p></div>`;
+  s+=`<div class="victoryScreen"><h2 class="pixel">FINAL ATTACK! — AWKWARDNESS MONSTER</h2><img class="pixelGif" src="${ATTACK_GIF}" alt="Fi and Mag throw a giant mushroom; Awkwardness Monster grows and explodes; the sisters cheer and the flag lowers. No prince appears." /><h2 class="pixel" style="color:#ffdc73">MONSTER DEFEATED! · TEAM WIN!</h2><p class="victorySub">Fi & Mag 用超大蘑菇擊敗陌生怪，城堡旗幟降下，兩姊妹跳起慶祝！</p><p class="tvPage">Final Attack 結束後將自動進入頒獎。王子只在 Happy Ending 出現。</p></div>`;
   // Display is derived from the freeze timestamp. Never write a TV-only override
   // back to Firebase: this keeps awards available on refresh and on other TVs.
   setTimeout(()=>{if(view==='tv'&&state.tvOverride==='attack')render()}, Math.max(120,FINAL_ATTACK_DURATION_MS-elapsed+120));
@@ -310,7 +313,7 @@ function tv(){
  else{
   s+=`<div style="text-align:center;margin:10px 0"><h2 class="pixel" style="color:#ffde73;font-size:1.55rem">FI & MAG — BEAT THE AWKWARDNESS MONSTER!</h2><p style="font-size:.88rem;color:#cbd5f4">Find common interests, make new friends, and rescue the prince!</p></div><div class="tvsky ${attacking?'attackAction':''} ${bingoAttack?'powerBingo':''}"><span class="fi ${attacking&&firingFi?'heroAttack':''}">👧🏻</span><span class="mag ${attacking&&!firingFi?'heroAttack':''}">👩🏽</span><span class="boss ${attacking?'bossHit':''}">👾</span><div class="tvground"></div>${attacking?`<span class="attackShot ${firingFi?'fromFi':'fromMag'}" aria-hidden="true">${projectileSvg}</span><span class="impactBurst" aria-hidden="true">✹</span>`:''}${has&&fx.type!=='edit'?`<div class="tvbanner pixel">${esc(fx.text)}</div>`:''}</div><div class="row space" style="margin:17px 0 7px"><b class="pixel">COMMON POWER</b><b>${gm.totalPower} / ${gm.target}</b></div><div class="progress"><div style="width:${pct}%"></div></div><div class="row space" style="margin-top:13px"><b>🎉 BINGO PLAYERS: ${gm.bingoPeople}</b><b>${ready?'FINAL ATTACK READY!':'KEEP CONNECTING!'}</b></div>${state.phase==='paused'?'<div class="tvbanner pixel">GAME PAUSED</div>':''}`;
  }
- s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.3A · Final Attack / Awards / Happy Ending。</p>';return s;
+ s+='</div><p class="sub" style="margin-top:10px">BingoC Firebase Multiplayer v2.3B · Final Attack / Awards / Happy Ending。</p>';return s;
 }
 
 let tvBannerTimer=null;
@@ -328,6 +331,7 @@ function render(){
   new QRCode(document.getElementById('actualQr'),{text:new URL('phone.html?room='+ROOM,location.href).href,width:154,height:154});
  }
  if(view==='tv'){
+  window.BingoCSound?.onRender(state);
   const now=Date.now();
   const tvTime=tvVisualEvent?.at && 2300-(now-tvVisualEvent.at);
   const remoteTime=state.event?.at && 2200-(now-state.event.at);

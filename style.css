@@ -157,3 +157,8 @@ body.mode-host header{padding-bottom:9px}
 @media(prefers-reduced-motion:reduce){
  .tvsky.attackAction .attackShot,.tvsky .heroAttack,.tvsky .boss.bossHit,.tvsky.attackAction .impactBurst{animation-duration:.35s}
 }
+
+/* v2.3B: TV-only sound mixer; intentionally does not affect phone or host */
+#bcAudioDock{position:fixed;bottom:12px;right:12px;z-index:10001;width:248px;box-sizing:border-box;background:rgba(10,23,49,.94);color:#f4f8ff;border:2px solid #f4c35f;border-radius:12px;padding:10px;box-shadow:0 4px 18px #0712279c;font-family:system-ui,sans-serif;font-size:13px;backdrop-filter:blur(6px)}
+#bcAudioDock .bcAudioHeading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}#bcAudioDock .bcAudioHeading small{color:#eacb8d;font-size:10px}#bcAudioDock button{cursor:pointer;background:#315c93;color:white;border:1px solid #9db9e1;border-radius:6px;font-size:11px;font-weight:700;padding:7px 9px}#bcAudioDock button:hover{background:#3d72b5}#bcAudioDock #bcAudioEnable{background:#21845a;color:white;flex:1}#bcAudioDock .bcAudioActions{display:flex;gap:5px;margin-bottom:8px}#bcAudioDock .bcAudioSliders label{display:grid;grid-template-columns:62px 1fr 38px;align-items:center;gap:4px;font-size:11px;margin:5px 0}#bcAudioDock .bcAudioSliders input{width:100%;accent-color:#f0c24c}#bcAudioDock .bcAudioSliders output{text-align:right;color:#f8d57d;font-variant-numeric:tabular-nums}#bcAudioDock .bcAudioTest{width:100%;margin-top:6px}
+@media(max-width:630px){#bcAudioDock{width:205px;bottom:6px;right:6px;padding:7px}#bcAudioDock .bcAudioSliders label{grid-template-columns:53px 1fr 31px}}
