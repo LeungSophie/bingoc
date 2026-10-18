@@ -7,7 +7,7 @@
  const TRACKS={lobby:'lobby_bgm.mp3',playing:'playing_bgm.mp3',awards:'awards_bgm.mp3',ending:'ending_bgm.mp3'};
  const FX={coin:'coin.mp3',join:'join.mp3',boost:'boost.mp3',reveal:'reveal.mp3',award:'award_win.mp3',battle:'battle_start.mp3',explosion:'explosion.mp3',flag:'flag_clear.mp3'};
  const ATTACK_MS=6380;
- const KEY='bingoc_tv_sound_v23b';
+ const KEY='bingoc_tv_sound_v23d';
  let prefs={bgm:.18,sfx:.88,muted:false};
  try{prefs={...prefs,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{}
  prefs.bgm=Math.max(0,Math.min(1,Number(prefs.bgm)||0));
@@ -15,12 +15,12 @@
  let enabled=false, currentState=null,stage=null,track=null,attackTimers=[],stageTimer=null,duckTimer=null,ducked=false;
  const music={};
  Object.entries(TRACKS).forEach(([key,filename])=>{
-   const a=new Audio(ROOT+filename+'?v=23b');a.preload='auto';a.loop=true;
+   const a=new Audio(ROOT+filename+'?v=23d');a.preload='auto';a.loop=true;
    music[key]=a;
  });
  const fxPool={};
  Object.entries(FX).forEach(([key,filename])=>{
-   const a=new Audio(ROOT+filename+'?v=23b');a.preload='auto';fxPool[key]=a;
+   const a=new Audio(ROOT+filename+'?v=23d');a.preload='auto';fxPool[key]=a;
  });
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch{}};
  function volume(){
@@ -59,11 +59,12 @@
    const next=calcStage(currentState);
    if(stage===next)return;
    clearAttack();clearTimeout(stageTimer);stageTimer=null;
-   if(track){track.pause();track=null;}
+   if(track){try{track.pause()}catch{} track=null;}
    const prev=stage;stage=next;
    if(next==='attack'){
-     // Schedule cues against the host's freeze timestamp, so reloads do not
-     // restart the final attack from the beginning.
+     // Keep background music during final attack, then layer battle / explosion / flag SFX on top.
+     track=music.awards||music.playing||null;
+     if(track){track.currentTime=0;volume();track.play().catch(()=>{});}
      const elapsed=Math.max(0,Date.now()-(currentState.finalAttackAt||Date.now()));
      const cues=[[0,'battle'],[3250,'explosion'],[4900,'flag']];
      cues.forEach(([ms,key])=>{
@@ -94,6 +95,7 @@
        if(newEvent){
          if(newEv.type==='boost')oneShot('boost');
          else if(newEv.type==='join'&&next.phase==='lobby')oneShot('join');
+         else if(newEv.type==='award')oneShot('award');
        }
        if(next.phase==='awards'&&prev.phase==='awards'){
          if(next.awardIndex===prev.awardIndex&&next.awardRevealed>prev.awardRevealed)oneShot('reveal');
@@ -111,7 +113,7 @@
    const s=document.getElementById('bcAudioStatus');
    if(b)b.textContent=enabled?'🔊 Audio ON':'▶ Enable Sound';
    if(m)m.textContent=prefs.muted?'🔇 Unmute':'🔈 Mute';
-   if(s)s.textContent=enabled?({'lobby':'LOBBY ♫','playing':'PLAYING ♫','paused':'PAUSED','attack':'FINAL ATTACK','awards':'AWARDS ♫','ending':'HAPPY ENDING ♫'}[stage]||'AUDIO ON'):'Click to start sound';
+   if(s)s.textContent=enabled?({'lobby':'LOBBY ♫','playing':'PLAYING ♫','paused':'PAUSED','attack':'FINAL ATTACK ♫','awards':'AWARDS ♫','ending':'HAPPY ENDING ♫'}[stage]||'AUDIO ON'):'Click to start sound';
  }
  function ui(){
    const dock=document.createElement('aside');dock.id='bcAudioDock';

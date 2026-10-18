@@ -164,16 +164,46 @@ body.mode-host header{padding-bottom:9px}
 @media(max-width:630px){#bcAudioDock{width:205px;bottom:6px;right:6px;padding:7px}#bcAudioDock .bcAudioSliders label{grid-template-columns:53px 1fr 31px}}
 
 
-/* v2.3C: original pixel heroes, lobby art, winner star gif */
-.lobbyArtBox{margin:14px auto 10px;max-width:780px;display:grid;gap:10px;justify-items:center}
-.lobbyDuo{width:min(100%,780px);border:6px solid #f5c448;border-radius:10px;image-rendering:pixelated;box-shadow:0 10px 0 #0d1738}
-.lobbyMiniSprites{display:flex;gap:16px;justify-content:center;align-items:flex-end}
-.lobbyMiniSprites img{width:72px;height:auto;image-rendering:pixelated;filter:drop-shadow(4px 5px 0 #1a2b58)}
+/* v2.3D lobby / pixel character / audio polish */
+.retroMiniBig{font-size:1.28rem;font-weight:900;color:#fff2a8;text-shadow:2px 2px #17325f}
+.tvLobby{text-align:center;margin-top:8px}
+.lobbyMeetRow{display:flex;justify-content:center;align-items:flex-end;gap:24px;flex-wrap:wrap;margin:18px auto 10px;max-width:920px}
+.lobbyMeetBanner{background:#1b2c5b;border:4px solid #f6c84a;border-radius:14px;padding:16px 20px;box-shadow:0 6px 0 #0d1738;max-width:330px;text-align:left}
+.lobbyMeetBanner h3{margin:0 0 8px;font-size:1.85rem;color:#ffe373}
+.lobbyMeetBanner p{margin:0;color:#eef4ff;font-size:1.05rem;line-height:1.45}
+.lobbySprites{display:flex;justify-content:center;align-items:flex-end;gap:18px;flex-wrap:wrap;min-height:150px}
+.lobbyUnit{display:grid;justify-items:center;gap:8px;color:#fff6c1;font-weight:900;text-shadow:2px 2px #14244a}
+.lobbyUnit img{image-rendering:pixelated;filter:drop-shadow(4px 5px 0 #1a2b58)}
+.lobbyUnit.hero img{width:96px;height:auto}
+.lobbyUnit.monster img{width:72px;height:auto}
+.lobbyUnit b{font-size:1.08rem}
+.lobbyUnit.monster b{font-size:.92rem;max-width:120px;line-height:1.15}
+.lobbyIntro{margin-top:18px;font-size:1.1rem;color:#e7efff}
+.joinedBig{font-size:1.65rem;color:#ffe47c;margin:18px 0 10px;text-shadow:2px 2px #111e42}
+.tvnamesBig{gap:12px;max-width:930px;margin:16px auto 0}
+.tvnameBig{font-size:1.18rem;padding:10px 16px;border-radius:9px;background:#2f4a88;border:3px solid #86a4db;box-shadow:0 3px 0 #15254e}
+.welcomeBanner{top:92px;left:15%;right:15%;font-size:1.45rem}
+.wave{animation:lobbywave 1.8s ease-in-out infinite}.wave2{animation:lobbywave2 2s ease-in-out infinite}
+@keyframes lobbywave{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-3px) rotate(-4deg)}50%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-3px) rotate(-4deg)}}
+@keyframes lobbywave2{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-4px) rotate(4deg)}50%{transform:translateY(0) rotate(-4deg)}75%{transform:translateY(-4px) rotate(4deg)}}
+.lobbyCelebrate .hero{animation:joinJump .8s ease-in-out 1}
+@keyframes joinJump{0%,100%{transform:translateY(0)}30%{transform:translateY(-18px)}55%{transform:translateY(0)}75%{transform:translateY(-8px)}}
 .tvsky .spriteUnit{position:absolute;bottom:44px;image-rendering:pixelated;filter:drop-shadow(4px 5px 0 #1a2b58);transform-origin:center bottom;user-select:none;-webkit-user-drag:none}
 .tvsky .fi,.tvsky .mag{width:72px;height:auto;font-size:0}
 .tvsky .fi{left:14%}
 .tvsky .mag{left:35%}
 .tvsky .boss{right:15%;left:auto;bottom:48px;width:108px;height:auto;font-size:0}
-.starWinner{display:grid;justify-items:center;gap:6px;background:none;border:0;box-shadow:none;padding:0;margin:8px auto 12px}
+.starWinner{display:grid;justify-items:center;gap:6px;background:none;border:0;box-shadow:none;padding:0;margin:6px auto 10px}
 .winnerStarGif{width:150px;height:auto;image-rendering:pixelated;filter:drop-shadow(0 8px 0 #8d6208)}
 .winnerStarLabel{color:#ffed95;font-size:1.04rem}
+@media(max-width:760px){
+  .retroMiniBig{font-size:1.05rem}
+  .lobbyMeetBanner{max-width:100%;text-align:center}
+  .lobbyMeetBanner h3{font-size:1.45rem}
+  .lobbyMeetBanner p{font-size:.95rem}
+  .lobbyUnit.hero img{width:84px}
+  .lobbyUnit.monster img{width:64px}
+  .joinedBig{font-size:1.32rem}
+  .tvnameBig{font-size:1rem;padding:9px 12px}
+  .welcomeBanner{left:8%;right:8%;font-size:1.15rem}
+}
